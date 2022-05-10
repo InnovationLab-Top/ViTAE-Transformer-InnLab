@@ -79,7 +79,7 @@ optimizer = dict(_delete_=True, type='AdamW', lr=0.0001, betas=(0.9, 0.999), wei
                                                  'norm': dict(decay_mult=0.)}))
 lr_config = dict(step=[27, 33])
 runner = dict(type='EpochBasedRunner', max_epochs=36)
-work_dir = "/content/outputs/"
+work_dir = "/valohai/outputs/"
 data_root = "data/coco/"
 find_unused_parameters=True
 # do not use mmdet version fp16
