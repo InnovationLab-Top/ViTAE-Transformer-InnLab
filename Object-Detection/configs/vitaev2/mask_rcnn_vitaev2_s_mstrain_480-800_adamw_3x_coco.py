@@ -1,6 +1,6 @@
 _base_ = [
     '../_base_/models/mask_rcnn_vitaev2_fpn.py',
-    '../_base_/datasets/coco_instance.py',
+    '../_base_/datasets/coco_detection.py',
     '../_base_/schedules/schedule_1x.py', '../_base_/default_runtime.py'
 ]
 
@@ -66,9 +66,10 @@ train_pipeline = [
     dict(type='Normalize', **img_norm_cfg),
     dict(type='Pad', size_divisor=32),
     dict(type='DefaultFormatBundle'),
-    dict(type='Collect', keys=['img', 'gt_bboxes', 'gt_labels', 'gt_masks']),
+    dict(type='Collect', keys=['img', 'gt_bboxes', 'gt_labels']),
 ]
-data = dict(train=dict(pipeline=train_pipeline, ann_file="data/coco/annotations/instances_train2017.json", img_prefix="data/coco/train2017"),
+data = dict(samples_per_gpu=1,
+          train=dict(pipeline=train_pipeline, ann_file="data/coco/annotations/instances_train2017.json", img_prefix="data/coco/train2017"),
             val=dict(ann_file="data/coco/annotations/instances_val2017.json", img_prefix="data/coco/train2017"),
             test=dict(ann_file="data/coco/annotations/instances_val2017.json", img_prefix="data/coco/train2017"))
 
