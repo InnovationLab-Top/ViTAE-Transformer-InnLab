@@ -32,7 +32,7 @@ img_norm_cfg = dict(
 # augmentation strategy originates from DETR / Sparse RCNN
 train_pipeline = [
     dict(type='LoadImageFromFile'),
-    dict(type='LoadAnnotations', with_bbox=True, with_mask=True),
+    dict(type='LoadAnnotations', with_bbox=True, with_mask=False),
     dict(type='RandomFlip', flip_ratio=0.5),
     dict(type='AutoAugment',
          policies=[
@@ -68,7 +68,9 @@ train_pipeline = [
     dict(type='DefaultFormatBundle'),
     dict(type='Collect', keys=['img', 'gt_bboxes', 'gt_labels', 'gt_masks']),
 ]
-data = dict(train=dict(pipeline=train_pipeline))
+data = dict(train=dict(pipeline=train_pipeline, ann_file="data/coco/annotations/instances_train2017.json", img_prefix="data/coco/train2017"),
+            val=dict(ann_file="data/coco/annotations/instances_val2017.json", img_prefix="data/coco/train2017"),
+            test=dict(ann_file="data/coco/annotations/instances_val2017.json", img_prefix="data/coco/train2017"))
 
 optimizer = dict(_delete_=True, type='AdamW', lr=0.0001, betas=(0.9, 0.999), weight_decay=0.05,
                  paramwise_cfg=dict(custom_keys={'absolute_pos_embed': dict(decay_mult=0.),
@@ -76,6 +78,8 @@ optimizer = dict(_delete_=True, type='AdamW', lr=0.0001, betas=(0.9, 0.999), wei
                                                  'norm': dict(decay_mult=0.)}))
 lr_config = dict(step=[27, 33])
 runner = dict(type='EpochBasedRunner', max_epochs=36)
+work_dir = "/content/outputs/"
+data_root = "data/coco/"
 find_unused_parameters=True
 # do not use mmdet version fp16
 # fp16 = None
