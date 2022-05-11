@@ -69,7 +69,9 @@ train_pipeline = [
     dict(type='Collect', keys=['img', 'gt_bboxes', 'gt_labels']),
 ]
 data = dict(samples_per_gpu=1,
-          train=dict(pipeline=train_pipeline, ann_file="data/coco/annotations/instances_train2017.json", img_prefix="data/coco/train2017"))
+          train=dict(pipeline=train_pipeline, ann_file="data/coco/annotations/instances_train2017.json", img_prefix="data/coco/train2017"),
+          val=dict(ann_file="data/coco/annotations/instances_val2017.json", img_prefix="data/coco/train2017"),
+          test=dict(ann_file="data/coco/annotations/instances_val2017.json", img_prefix="data/coco/train2017"))
 
 optimizer = dict(_delete_=True, type='AdamW', lr=0.0001, betas=(0.9, 0.999), weight_decay=0.05,
                  paramwise_cfg=dict(custom_keys={'absolute_pos_embed': dict(decay_mult=0.),
@@ -79,6 +81,7 @@ lr_config = dict(step=[27, 33])
 runner = dict(type='EpochBasedRunner', max_epochs=36)
 work_dir = "/valohai/outputs/"
 data_root = "data/coco/"
+workflow = [('train', 1), ('val', 1)]
 find_unused_parameters=True
 # do not use mmdet version fp16
 # fp16 = None
