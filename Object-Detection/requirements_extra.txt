@@ -1,6 +1,6 @@
 --find-links https://download.pytorch.org/whl/torch_stable.html
 torch==1.7.0+cu110 
-torchvision==0.8.0+cu110
+torchvision==0.8.1+cu110
 --find-links https://dl.fbaipublicfiles.com/vissl/packaging/apexwheels/py37_cu110_pyt170/download.html
 apex
 --find-links https://download.openmmlab.com/mmcv/dist/cu110/torch1.7.0/index.html
