@@ -38,14 +38,16 @@ train_pipeline = [
          policies=[
              [
                  dict(type='Resize',
-                      # [664, 696, 728, 760, 792, 824, 856, 888, 920, 952, 984]
-                      img_scale=[(984, 1850)],
+                      # [722, 754, 786, 818, 850, 882, 914, 946, 978, 1010, 1042]
+                      img_scale=[(690, 1920), (722, 1920), (768, 1920), (818, 1920),
+                                 (850, 1920), (882, 1920), (914, 1920), (946, 1920),
+                                 (978, 1920), (1010, 1920), (1042, 1920)],
                       multiscale_mode='value',
                       keep_ratio=True)
              ],
              [
                  dict(type='Resize',
-                      img_scale=[(634, 1850), (734, 1850), (834, 1850)], # similar
+                      img_scale=[(658, 1920), (758, 1920), (858, 1920)], # similar
                       multiscale_mode='value',
                       keep_ratio=True),
                  dict(type='RandomCrop',
@@ -53,7 +55,9 @@ train_pipeline = [
                       crop_size=(768, 1200), # double
                       allow_negative_crop=True),
                  dict(type='Resize',
-                      img_scale=[(984, 1850)],
+                      img_scale=[(690, 1920), (722, 1920), (768, 1920), (818, 1920),
+                                 (850, 1920), (882, 1920), (914, 1920), (946, 1920),
+                                 (978, 1920), (1010, 1920), (1042, 1920)],
                       multiscale_mode='value',
                       override=True,
                       keep_ratio=True)
