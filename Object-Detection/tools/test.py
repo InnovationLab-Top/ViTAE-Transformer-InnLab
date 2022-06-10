@@ -1,9 +1,14 @@
 import argparse
 import os
+import os.path as osp
+import json
 import warnings
 
 import mmcv
 import torch
+import pathlib
+from pycocotools.coco import COCO
+
 from mmcv import Config, DictAction
 from mmcv.cnn import fuse_conv_bn
 from mmcv.parallel import MMDataParallel, MMDistributedDataParallel
@@ -14,13 +19,18 @@ from mmdet.apis import multi_gpu_test, single_gpu_test
 from mmdet.datasets import (build_dataloader, build_dataset,
                             replace_ImageToTensor)
 from mmdet.models import build_detector
+from torch.nn.parallel.data_parallel import data_parallel
 
+DATA_ROOT = osp.join(pathlib.Path(__file__).parents[1], "data/coco")
+TRAIN_ANN = "/annotations/instances_train2017.json"
+file_extensions = [".jpg", ".jpeg", ".png", ".tif", ".gif", ".JPG"]
 
 def parse_args():
     parser = argparse.ArgumentParser(
         description='MMDet test (and eval) a model')
     parser.add_argument('config', help='test config file path')
     parser.add_argument('checkpoint', help='checkpoint file')
+    parser.add_argument('--test-path', help='test path of directory of images')
     parser.add_argument('--out', help='output result file in pickle format')
     parser.add_argument(
         '--fuse-conv-bn',
@@ -101,6 +111,23 @@ def parse_args():
 def main():
     args = parse_args()
 
+    test_path = args.test_path
+    test_json_path = osp.join(test_path, "test.json")
+    images = os.listdir(test_path)
+    images_info = [
+      {'file_name': image, 'id': n} for n, image in enumerate(images, 1) if image[-4:] in file_extensions
+    ]
+
+    coco = COCO("{}{}".format(DATA_ROOT, TRAIN_ANN))
+    OUTPUT_CATEGORIES = coco.loadCats(coco.getCatIds())
+
+    data = {'categories': OUTPUT_CATEGORIES,
+            'annotations': [],
+            'images': images_info}
+    
+    with open(test_json_path, 'w') as outfile:
+        json.dump(data, outfile)
+
     assert args.out or args.eval or args.format_only or args.show \
         or args.show_dir, \
         ('Please specify at least one operation (save/eval/format/show the '
@@ -116,6 +143,9 @@ def main():
     cfg = Config.fromfile(args.config)
     if args.cfg_options is not None:
         cfg.merge_from_dict(args.cfg_options)
+    
+    cfg.data.test.img_prefix=args.test_path
+    cfg.data.test.ann_file=test_json_path
     # import modules from string list.
     if cfg.get('custom_imports', None):
         from mmcv.utils import import_modules_from_strings
@@ -183,7 +213,8 @@ def main():
         model.CLASSES = checkpoint['meta']['CLASSES']
     else:
         model.CLASSES = dataset.CLASSES
-
+    
+    model.CLASSES = ("grape", )
     if not distributed:
         model = MMDataParallel(model, device_ids=[0])
         outputs = single_gpu_test(model, data_loader, args.show, args.show_dir,
